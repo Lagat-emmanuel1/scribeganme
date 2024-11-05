@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Launch Game</title>
+    <script>
+        function redirect() {
+            function searchURLParam(name) {
+                const url = window.location.href;
+                name = name.replace(/[\[\]]/g, '\\$&');
+                const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                      results = regex.exec(url);
+                if (!results) return null;
+                if (!results[2]) return '';
+                return decodeURIComponent(results[2].replace(/\+/g, ' '));
+            }
+
+            function findGameName() {
+                const path = window.location.pathname;
+                return path ? path.split('/').pop() : null;
+            }
+
+            function gameBaseLaunchUrl(game) {
+                const crashGames = ["aviator", "starline", "trader"];
+                const turboGames = ["dice", "mines", "goal", "plinko", "keno", "hi-lo", "mini-roulette", "hotline", "balloon"];
+                const multiplayerGame = ["poker", "multikeno"];
+                const slotGames = ["crystal-fall", "neo-vegas", "gates-of-egypt"];
+                const games = [...crashGames, ...turboGames, ...multiplayerGame, ...slotGames];
+
+                if (!games.includes(game)) return null;
+
+                const brand = searchURLParam("brand");
+                const currentOperator = searchURLParam("operator");
+
+                if (game === "poker") {
+                    return ["singularqa.uk", "adjarabet-stage.com", "adjarabet.com", "adjarabet.am"].includes(brand)
+                        ? generatePokerLaunch(brand)
+                        : "https://poker.spribegaming.com/";
+                }
+
+                const gameUrls = {
+                    "starline": "https://starline.spribegaming.com/",
+                    "trader": "https://trader.spribegaming.com/",
+                    "multikeno": "https://keno80.spribegaming.com/",
+                    "aviator": "https://aviator-next.spribegaming.com/"
+                };
+
+                if (gameUrls[game]) return gameUrls[game];
+
+                if (slotGames.includes(game)) return `https://slots.spribegaming.com/${game}`;
+
+                const turboOldOperators = ["momobet"];
+                return turboOldOperators.includes(currentOperator)
+                    ? `https://turbo-next.spribegaming.com/games/${game}`
+                    : `https://turbo.spribegaming.com/${game}`;
+            }
+
+            function generatePokerLaunch(brand) {
+                const urlBase = brand === "adjarabet.am" 
+                    ? "https://public-ga.adjarabet.am/public/singular/launch" 
+                    : "https://public-ga.ab.spribegaming.com/public/singular/launch";
+                return urlBase;
+            }
+
+            const game = findGameName();
+            const baseUrl = gameBaseLaunchUrl(game);
+            if (baseUrl) {
+                window.location.replace(baseUrl + window.location.search);
+            }
+        }
+    </script>
+</head>
+<body onload="redirect()">
+</body>
+</html>
